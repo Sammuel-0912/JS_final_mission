@@ -3,9 +3,6 @@ const sectionTitle = document.querySelector(".section-title");
 const changeChartBtn = document.querySelector(".changeChartBtn");
 const discardAllBtn = document.querySelector(".discardAllBtn");
 
-const baseUrl = "https://livejs-api.hexschool.io";
-const apiPath = "sam60320" ; 
-
 let orderData = [];
 let chartContentType = "全品項";
 
@@ -75,7 +72,7 @@ function renderC3() {
     
     //C3 圖表
 
-    const chart = renderC3.generate({
+    const chart = c3.generate({
         bindto: "#chart", //元素綁定
         data: {
             type: "pie",
@@ -88,7 +85,7 @@ function renderC3() {
 }
 
 //圖表切換
-changeChartBtn.addEventListener("click",(e) => {
+changeChartBtn.addEventListener("click", (e) => {
     if (chartContentType === "全品項") {
         chartContentType = "全產品類別";
         sectionTitle.textContent = `${chartContentType}營收比重`;

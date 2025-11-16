@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-<link rel="stylesheet" href="admin.css">
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.7.20/c3.min.css"/>
+    <link rel="stylesheet" href="admin.css">
+
 </head>
 <body>
     <body>
@@ -23,6 +25,7 @@
     <section class="wrap">
         <h2 class="section-title">全品項營收比重</h2>
         <div id="chart"></div>
+            <button type="button" class="changeChartBtn">圓餅圖切換</button>
     </section>
     <section class="wrap orderPage-list">
         <a href="#" class="discardAllBtn">清除全部訂單</a>
@@ -50,31 +53,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.7.18/c3.js"></script>
 <!-- axios -->
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script src="admin.js"></script>
+
 <!--sweetalert-->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<!-- // 預設 JS，請同學不要修改此處
-let menuOpenBtn = document.querySelector('.menuToggle');
-let linkBtn = document.querySelectorAll('.topBar-menu a');
-let menu = document.querySelector('.topBar-menu');
-menuOpenBtn.addEventListener('click', menuToggle);
-
-linkBtn.forEach((item) => {
-    item.addEventListener('click', closeMenu);
-})
-
-function menuToggle() {
-    if(menu.classList.contains('openMenu')) {
-        menu.classList.remove('openMenu');
-    }else {
-        menu.classList.add('openMenu');
-    }
-}
-function closeMenu() {
-    menu.classList.remove('openMenu');
-} -->
-
+<script src="config.js"></script>
+<script src="admin.js"></script>
+<script src="admin-animation.js"></script>
 </script>
 </body>
 </body>
