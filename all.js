@@ -1,6 +1,4 @@
-const baseUrl = "https://livejs-api.hexschool.io";
-const apiPath = "sam60320" ; 
-
+const orderInfoForm = document.querySelector(".orderInfo-form");
 const title = document.querySelector(".title");
 const productImg = document.querySelector('.productImg');
 const category = document.querySelector(".category");
@@ -10,20 +8,55 @@ const productList = document.querySelector('.productWrap');
 const cartList = document.querySelector(".cartList");
 const delAllCartBtn = document.querySelector('.discardAllBtn');
 const addCardBtn = document.querySelectorAll('.addCardBtn');
+const orderInfoBtn = document.querySelector('.orderInfo-btn');
+const productSelect = document.querySelector(".productSelect");
+cartTotal = document.querySelector(".cart-total");
+const inputs = document.querySelectorAll("input[name]");
+const customerName = document.querySelector("#customerName");
+const customerPhone = document.querySelector("#customerPhone");
+const customerEmail = document.querySelector("#customerEmail");
+const customerAddress = document.querySelector("#customerAddress");
+const customerTradeWay = document.querySelector("#tradeWay");
 
-const Toast = Swal.mixin({
-    toast: true,
-    position: "top-end",
-    showConfirmButton: false,
-    timer: 3000,
-    timerProgressBar: true,
-    didOpen: (toast) => {
-        toast.onmouseenter = Swal.stopTimer;
-        toast.onmouseleave = Swal.resumeTimer;
-    }
-})
+// 驗證規則
+const constraints = {
+  姓名: {
+    presence: {
+      message: "^必填",
+    },
+  },
+  電話: {
+    presence: {
+      message: "^必填",
+    },
+    numericality: {
+      message: "^電話格式不正確",
+    },
+  },
+  Email: {
+    presence: {
+      message: "^必填",
+    },
+    email: {
+      message: "^Email 格式不正確",
+    },
+  },
+  寄送地址: {
+    presence: {
+      message: "^必填",
+    },
+  },
+};
 
 let products = []; 
+let errors = validate(orderInfoForm,constraints);
+
+//轉換成千分位
+function NumberWithCommas(x) {
+  let parts = x.toString().split(".");
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return parts.join(".");
+}
 
 function init() {
   // 1. 取得產品列表並渲染畫面
@@ -116,7 +149,7 @@ function renderProduct(dataList) {
   });
   productList.innerHTML = str; 
 
-  //監聽「加入購物車」按鈕事件（事件委派）
+  //監聽「加入購物車」按鈕事件
     let addCardBtn = document.querySelectorAll('.addCart');
     addCardBtn.forEach(function(item){
       item.addEventListener('click', function(e){
@@ -159,30 +192,19 @@ axios.get(url
     console.log(`資料回傳成功`); 
   })
 
-// 4. 加入購物車（此解答固定數量為 1，沒有累加）
-// function addCart(id){
-//   let url = `${baseUrl}/api/livejs/v1/customer/${apiPath}/carts`;
-//   let data = {
-//     "data":{
-//       "productId": id,
-//       "quantity": 1
-//     }
-//   }
-//   axios.post(url, data)
-//     .then(function(res){
-//       getCart();
-//     })
-//     .catch(function(err){
-//       console.log(err)
-//     })
-// }
-
-function getCart() {
-  axios.get(`${baseUrl}/api/livejs/v1/customer/${apiPath}/carts`)
-  .then(res => {
-    renderCart(res.data.carts);
-  })
-  .catch(err => console.log('取得購物車失敗:',err));
+async function getCart() {
+  try {
+    const url = `${baseUrl}/api/livejs/v1/customer/${apiPath}/carts`;
+    const response = await axios.get(url);
+    cartTotal.textContent = NumberWithCommas(response.data.finalTotal);
+    cartData = response.data.carts;
+    renderCart(cartData);
+  } catch (error) {
+    Toast.fire({
+      icon: "error",
+      title: error.response.data.message || "無法取得購物車資料",
+    });
+  }
 }
 
 function renderCart(cartData) {
@@ -204,12 +226,15 @@ function renderCart(cartData) {
                         <p>${item.product.title}</p>
                     </div>
                 </td>
-                <td>NT$${(item.product.price)}</td>
-                <td><button type="button" class="minusEdit" data-id ="${item.id}">-</button>
-                ${item.quantity}
-                <button type="button" class="plusEdit" data-id ="${item.id}">+</button>
+                <td>NT$${NumberWithCommas(item.product.price)}</td>
+                <td>
+                <button type="button" class="plusCartBtn" data-id ="${item.id}" data-num=${item.quantity + 1}><span class="material-symbols-outlined"> add </span></button>
+                <span class="quantity">${item.quantity}</span>
+                <button type="button" class="subCartBtn" data-id ="${item.id}" data-num=${item.quantity - 1}><span class="material-symbols-outlined">remove</span></button>
                 </td>
-                <td>NT$${(item.quantity * item.product.price)}</td>
+                <td>
+                NT$${NumberWithCommas(item.quantity * item.product.price)}
+                </td>
                 <td class="discardBtn">
                     <a href="#" class="material-icons delOneProduct" data-id ="${item.id}">
                         clear
@@ -226,13 +251,13 @@ function renderCart(cartData) {
       delSingleCart(e.target.dataset.id);
     })
   })
-let cartNumEdit = document.querySelectorAll('.cartAmount-icon');
-cartNumEdit.forEach(function(item) {
-    item.addEventListener('click', function(e){
-      e.preventDefault();
-      editCartNum(e.target.dataset.num, e.target.dataset.id);
-    })
-})
+// let cartNumEdit = document.querySelectorAll('.cartAmount-icon');
+// cartNumEdit.forEach(function(item) {
+//     item.addEventListener('click', function(e){
+//       e.preventDefault();
+//       editCartNum(e.target.dataset.num, e.target.dataset.id);
+//     })
+// })
 //點擊加入購物車
     productList.addEventListener('click', e => {
         e.preventDefault();
@@ -268,10 +293,6 @@ cartNumEdit.forEach(function(item) {
         });
     }
     //刪除全部
-
-
-
-
 }
 delAllCartBtn.addEventListener('click', delAllCart);
 function delAllCart() {
@@ -293,11 +314,124 @@ function delSingleCart(id){
   axios.delete(url)
     .then(function(res){
       getCart();
+      Toast.fire({
+        icon: "success",
+        title: "成功刪除購物車商品",
+      });
       setTimeout(function(){ alert("成功刪除此筆訂單"); }, 1000);
     })
     .catch(function(error){
-      console.log(error);
-    })
+      Toast.fire({
+        icon: "error",
+        title: error.response.data.message || "無法刪除商品",
+      });
+    }) 
+}
 
-    
+//送出訂單
+orderInfoBtn.addEventListener("click", summitOrder);
+
+async function summitOrder(e) {
+  e.preventDefault();
+
+  //購物車沒有商品
+  if(cartList.length ===0) {
+    Toast.fire({
+      icon: "warning",
+      title: "請將商品加入購物車",
+    });
+    return;
+  }
+    //表單驗證
+    errors = validate(orderInfoForm,constraints);
+    if (errors) return;
+
+    const name = customerName.value.trim();
+    const tel = customerPhone.value.trim();
+    const email = customerEmail.value.trim();
+    const address = customerAddress.value.trim();
+    const payment = customerTradeWay.value;
+
+    orderInfoBtn.classList.add("disabled");
+    //送出請求
+
+    try {
+      const url = `${baseUrl}/api/livejs/v1/customer/${apiPath}/orders`;
+      const data = {
+        data: {
+          user: {
+            name,
+            tel,
+            email,
+            address,
+            payment,
+          },
+        },
+      };
+      const response = await axios.post(url,data);
+
+      Toast.fire({
+        icon: "success",
+        title: "訂單建立成功",
+      });
+      orderInfoBtn.classList.remove("disabled");
+      getCart();
+      orderInfoForm.reset();
+    } catch (error) {
+      Toast.fire({
+        icon: "error",
+        title: error.response.data.message || "訂單建立失敗",
+      });
+      orderInfoBtn.classList.remove("disabled");
+    }
+}
+
+//篩選產品列表
+
+productSelect.addEventListener("click", filterProducts);
+
+function filterProducts(e) {
+  const category = e.target.value;
+  let filterData = [];
+
+  if(category === "全部") {
+    filterData = products;
+  } else {
+    filterData = products.filter((product) => product.category === category);
+  }
+  renderProduct(filterData);
+}
+
+//修改購物車商品數量
+cartList.addEventListener("click",(e) => {
+  const btn = e.target.closest(".plusCartBtn, .subCartBtn");
+  if(!btn || cartList.contains(btn)) return ;
+
+  const id = btn.dataset.id;
+  const num = Number(btn.dataset.num);
+  editCartNum(num,id);
+})
+
+async function editCartNum(num,id) {
+  if (num > 0) {
+    try {
+
+      const url = `${baseUrl}/api/livejs/v1/customer/${apiPath}/carts`;
+      const data = {
+        data: {
+          id,
+          quantity: num,
+        },
+      };
+      const response = await axios.patch(url,data);
+      getCart();
+    } catch(error) {
+      Toast.fire({
+        icon: "error",
+        title: error.response.data.message || "無法修改購物車數量",
+      });
+    }
+  } else {
+    delSingleCart(id);
+  }
 }
