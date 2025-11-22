@@ -10,7 +10,7 @@ const delAllCartBtn = document.querySelector('.discardAllBtn');
 const addCardBtn = document.querySelectorAll('.addCardBtn');
 const orderInfoBtn = document.querySelector('.orderInfo-btn');
 const productSelect = document.querySelector(".productSelect");
-cartTotal = document.querySelector(".cart-total");
+const cartTotal = document.querySelector(".cart-total");
 const inputs = document.querySelectorAll("input[name]");
 const customerName = document.querySelector("#customerName");
 const customerPhone = document.querySelector("#customerPhone");
@@ -64,9 +64,6 @@ function init() {
 
   // 2. 取得購物車資料並渲染購物車內容
   getCart();
-
-  // 3. 綁定購物車刪除全部的按鈕事件
-  delAllCartBtn.addEventListener('click', delAllCart);
 
   // 4. 綁定加入購物車按鈕事件（使用事件委派）
   productList.addEventListener('click', function(e){
@@ -149,13 +146,6 @@ function renderProduct(dataList) {
   });
   productList.innerHTML = str; 
 
-  //監聽「加入購物車」按鈕事件
-    let addCardBtn = document.querySelectorAll('.addCart');
-    addCardBtn.forEach(function(item){
-      item.addEventListener('click', function(e){
-        addCart(e.target.dataset.id);
-      });
-  })
     // 9. 加上刪除按鈕的操作
   let alldelSingleBtn = document.querySelectorAll('.delSingleBtn');
   alldelSingleBtn.forEach(function(item){
@@ -164,8 +154,8 @@ function renderProduct(dataList) {
       delSingleCart(e.target.dataset.id);
     });
 });
-  const cartList = document.querySelector('.cartList');
-  cartList.innerHTML = str;
+  
+  
 
  // 🔹 監聽「刪除單筆」按鈕
   const delSingleBtns = document.querySelectorAll('.delSingleBtn');
@@ -176,21 +166,6 @@ function renderProduct(dataList) {
     });
   });
 }
-
-let data = [];
-let url = `${baseUrl}/api/livejs/v1/customer/${apiPath}/products`;
-axios.get(url
-)
-  .then(function(res) {
-   data = res.data.products;
-   render(data); 
-  })
-  .catch(function() {
-    console.log("發生錯誤"); 
-  })
-  .finally(function(){
-    console.log(`資料回傳成功`); 
-  })
 
 async function getCart() {
   try {
@@ -208,14 +183,6 @@ async function getCart() {
 }
 
 function renderCart(cartData) {
-    // if(cartData.length === 0) {
-    //     cartList.innerHTML = '目前購物車沒有商品';
-    //     discardAllBtn.classList.add('disabled');
-    //     allPrice.textContent = totalPrice;
-    //     return;
-    // } else {
-    //     discardAllBtn.classList.remove('disabled');
-    // }
   let str = '';
   cartData.forEach(item => {
     str += `               
@@ -251,13 +218,6 @@ function renderCart(cartData) {
       delSingleCart(e.target.dataset.id);
     })
   })
-// let cartNumEdit = document.querySelectorAll('.cartAmount-icon');
-// cartNumEdit.forEach(function(item) {
-//     item.addEventListener('click', function(e){
-//       e.preventDefault();
-//       editCartNum(e.target.dataset.num, e.target.dataset.id);
-//     })
-// })
 //點擊加入購物車
     productList.addEventListener('click', e => {
         e.preventDefault();
@@ -301,7 +261,7 @@ function delAllCart() {
   .then(function(res) {
     getCart();
     setTimeout(function() {
-      alert('成功刪除所有訂單'); },1000);
+      alert('成功刪除購物車內商品'); },1000);
     })
   .catch(function(error) {
     console.log(error);
@@ -405,7 +365,7 @@ function filterProducts(e) {
 //修改購物車商品數量
 cartList.addEventListener("click",(e) => {
   const btn = e.target.closest(".plusCartBtn, .subCartBtn");
-  if(!btn || cartList.contains(btn)) return ;
+  if(!btn) return ;
 
   const id = btn.dataset.id;
   const num = Number(btn.dataset.num);
@@ -413,9 +373,11 @@ cartList.addEventListener("click",(e) => {
 })
 
 async function editCartNum(num,id) {
-  if (num > 0) {
+  if (num < 1){
+    delSingleCart(id);
+    return;
+  }
     try {
-
       const url = `${baseUrl}/api/livejs/v1/customer/${apiPath}/carts`;
       const data = {
         data: {
@@ -423,15 +385,12 @@ async function editCartNum(num,id) {
           quantity: num,
         },
       };
-      const response = await axios.patch(url,data);
+      await axios.patch(url,data);
       getCart();
     } catch(error) {
       Toast.fire({
         icon: "error",
-        title: error.response.data.message || "無法修改購物車數量",
+        title: error.response?.data?.message || "無法修改購物車數量",
       });
-    }
-  } else {
-    delSingleCart(id);
-  }
+    } 
 }
