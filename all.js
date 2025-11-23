@@ -295,7 +295,7 @@ async function summitOrder(e) {
   e.preventDefault();
 
   //購物車沒有商品
-  if(cartList.length ===0) {
+  if(cartData.length ===0) {
     Toast.fire({
       icon: "warning",
       title: "請將商品加入購物車",
