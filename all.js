@@ -17,7 +17,7 @@ const customerPhone = document.querySelector("#customerPhone");
 const customerEmail = document.querySelector("#customerEmail");
 const customerAddress = document.querySelector("#customerAddress");
 const customerTradeWay = document.querySelector("#tradeWay");
-const  alldelSingleBtn = document.querySelectorAll('.delSingleBtn');
+
 // 驗證規則
 const constraints = {
   姓名: {
