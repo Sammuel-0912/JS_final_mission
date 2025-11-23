@@ -17,6 +17,7 @@ const customerPhone = document.querySelector("#customerPhone");
 const customerEmail = document.querySelector("#customerEmail");
 const customerAddress = document.querySelector("#customerAddress");
 const customerTradeWay = document.querySelector("#tradeWay");
+let alldelSingleBtn = document.querySelectorAll('.discardBtn');
 
 // 驗證規則
 const constraints = {
@@ -107,8 +108,6 @@ function init() {
         });
       });
   });
-
-  // console.log("✅ 初始化完成，產品與購物車已渲染");
 }
 
 // 🔹 呼叫初始化函式
@@ -207,52 +206,17 @@ function renderCart(cartData) {
                         clear
                     </a>
                 </td>
-            </tr>`
+            </tr>`;
   });
+   // 將 HTML 渲染到畫面
+  cartList.innerHTML = str;
   
-
-  let alldelSingleBtn = document.querySelectorAll('.discardBtn');
   alldelSingleBtn.forEach(function(item) {
     item.addEventListener('click', function(e){
       e.preventDefault();
       delSingleCart(e.target.dataset.id);
     })
   })
-//點擊加入購物車
-    productList.addEventListener('click', e => {
-        e.preventDefault();
-        if(!e.target.classList.contains('addCardBtn')) {
-            return;
-        }
-        let productId = e.target.getAttribute('data-id');
-        let cartNum = 1;
-        cartData.forEach(item => {
-            if(item.product.id === productId){
-                cartNum = item.quantity += 1;
-            }
-        })
-        addCart(productId,cartNum);
-        Toast.fire({
-            icon: "success",
-            title: "已加入購物車"
-        });
-    })
-    function addCart(id,num) {
-        let url = `${baseUrl}/api/livejs/v1/customer/${apiPath}/carts`;
-        let data = {
-            "data": {
-            "productId": id,
-            "quantity": 1
-            }
-        }
-        axios.post(url, data)
-        .then(function(res) {
-        getCart();
-        })
-        .catch(function(error) {
-        });
-    }
-    //刪除全部
 }
 delAllCartBtn.addEventListener('click', delAllCart);
 function delAllCart() {
