@@ -17,8 +17,7 @@ const customerPhone = document.querySelector("#customerPhone");
 const customerEmail = document.querySelector("#customerEmail");
 const customerAddress = document.querySelector("#customerAddress");
 const customerTradeWay = document.querySelector("#tradeWay");
-let alldelSingleBtn = document.querySelectorAll('.discardBtn');
-
+const  alldelSingleBtn = document.querySelectorAll('.delSingleBtn');
 // 驗證規則
 const constraints = {
   姓名: {
@@ -146,24 +145,13 @@ function renderProduct(dataList) {
   productList.innerHTML = str; 
 
     // 9. 加上刪除按鈕的操作
-  let alldelSingleBtn = document.querySelectorAll('.delSingleBtn');
+  
   alldelSingleBtn.forEach(function(item){
     item.addEventListener('click', function(e){
       e.preventDefault();
       delSingleCart(e.target.dataset.id);
     });
 });
-  
-  
-
- // 🔹 監聽「刪除單筆」按鈕
-  const delSingleBtns = document.querySelectorAll('.delSingleBtn');
-  delSingleBtns.forEach(function (item) {
-    item.addEventListener('click', function (e) {
-      e.preventDefault();
-      delSingleCart(e.target.dataset.id);
-    });
-  });
 }
 
 async function getCart() {
@@ -210,27 +198,13 @@ function renderCart(cartData) {
   });
    // 將 HTML 渲染到畫面
   cartList.innerHTML = str;
-  
-  alldelSingleBtn.forEach(function(item) {
-    item.addEventListener('click', function(e){
-      e.preventDefault();
-      delSingleCart(e.target.dataset.id);
-    })
-  })
+
 }
-delAllCartBtn.addEventListener('click', delAllCart);
-function delAllCart() {
-  let url = `${baseUrl}/api/livejs/v1/customer/${apiPath}/carts`
-  axios.delete(url)
-  .then(function(res) {
-    getCart();
-    setTimeout(function() {
-      alert('成功刪除購物車內商品'); },1000);
-    })
-  .catch(function(error) {
-    console.log(error);
-  })
-}
+cartList.addEventListener("click", function(e) {
+  if (!e.target.classList.contains("delOneProduct")) return;
+  e.preventDefault();
+  delSingleCart(e.target.dataset.id);
+});
 
 // 9. 刪除功能製作
 function delSingleCart(id){
