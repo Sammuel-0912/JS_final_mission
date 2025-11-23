@@ -108,7 +108,7 @@ function init() {
       });
   });
 
-  console.log("✅ 初始化完成，產品與購物車已渲染");
+  // console.log("✅ 初始化完成，產品與購物車已渲染");
 }
 
 // 🔹 呼叫初始化函式
@@ -231,7 +231,7 @@ function renderCart(cartData) {
                 cartNum = item.quantity += 1;
             }
         })
-        // addCart(productId,cartNum);
+        addCart(productId,cartNum);
         Toast.fire({
             icon: "success",
             title: "已加入購物車"
